@@ -1,0 +1,9 @@
+[project]
+name = "mi-auto-tasks-change"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "drissionpage>=4.1.0.18",
+    "python-dotenv>=1.1.0",
+]
