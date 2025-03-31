@@ -9,6 +9,8 @@ from DrissionPage._pages.mix_tab import MixTab
 from dotenv import load_dotenv
 from rich.pretty import pprint
 
+from manager import CookiesManager
+
 load_dotenv()
 
 
@@ -72,11 +74,16 @@ if __name__ == '__main__':
     # browser = Chromium(ChromiumOptions().headless())
     browser = Chromium()
     tab: MixTab = browser.latest_tab
+    cookies_manager = CookiesManager('miui_cookies.json')
+    last_cookies = cookies_manager.get_all_cookies()
+    if not last_cookies:
+        cookies = login(tab)
+        cookies_manager.add_cookies(cookies)
+    else:
+        for cookie in last_cookies:
+            tab.set.cookies(cookie)
+        tab.get('https://web.vip.miui.com/page/info/mio/mio/boardLive')
 
-    cookies = login(tab)
-
-    for cookie in cookies:
-        pprint(cookie)
-
-    # # 关闭浏览器
+    tab.wait(5)
+    # 关闭浏览器
     browser.quit()
