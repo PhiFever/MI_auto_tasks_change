@@ -3,8 +3,7 @@ import random
 import time
 
 from DrissionPage import Chromium, ChromiumOptions
-from DrissionPage._elements.chromium_element import ChromiumElement
-from DrissionPage._elements.session_element import SessionElement
+from DrissionPage._functions.cookies import CookiesList
 from DrissionPage.common import Keys
 from DrissionPage._pages.mix_tab import MixTab
 from dotenv import load_dotenv
@@ -53,29 +52,30 @@ def human_like_input(current_tab: MixTab, locator: str, input_text: str) -> str:
     return typed_text
 
 
+def login(current_tab: MixTab) -> CookiesList:
+    current_tab.get(
+        'https://account.xiaomi.com/fe/service/login/password?sid=miui_vip&qs=%253Fcallback%253Dhttps%25253A%25252F%25252Fapi.vip.miui.com%25252Fsts%25253Fsign%25253DebkFH%2525252BMQmjxjfKc2NjnX3gE8r20%2525253D%252526followup%25253Dhttps%2525253A%2525252F%2525252Fapi.vip.miui.com%2525252Fpage%2525252Flogin%2525253FdestUrl%2525253Dhttps%252525253A%252525252F%252525252Fweb.vip.miui.com%252525252Fpage%252525252Finfo%252525252Fmio%252525252Fmio%252525252FboardLive%252525253Fapp_version%252525253Ddev.20051%25252526time%2525253D1743342077662%2526sid%253Dmiui_vip&callback=https%3A%2F%2Fapi.vip.miui.com%2Fsts%3Fsign%3DebkFH%252BMQmjxjfKc2NjnX3gE8r20%253D%26followup%3Dhttps%253A%252F%252Fapi.vip.miui.com%252Fpage%252Flogin%253FdestUrl%253Dhttps%25253A%25252F%25252Fweb.vip.miui.com%25252Fpage%25252Finfo%25252Fmio%25252Fmio%25252FboardLive%25253Fapp_version%25253Ddev.20051%2526time%253D1743342077662&_sign=nvp5AxUt9LpCUk3g58NC07exdZU%3D&serviceParam=%7B%22checkSafePhone%22%3Afalse%2C%22checkSafeAddress%22%3Afalse%2C%22lsrp_score%22%3A0.0%7D&showActiveX=false&theme=&needTheme=false&bizDeviceType=&_locale=zh_CN')
+    human_like_input(current_tab, '@@name=account@@class=mi-input__input', os.getenv('ACCOUNT'))
+    human_like_input(current_tab, '@@name=password@@class=mi-input__input', os.getenv('PASSWORD'))
+    current_tab.wait(random.uniform(0.1, 0.5))
+    # 同意协议
+    current_tab.ele('@@type=checkbox@@class=ant-checkbox-input').click()
+    current_tab.wait(random.uniform(0.1, 0.5))
+    # 点击登录
+    current_tab.ele('@@type=submit@@class=mi-button mi-button--primary mi-button--fullwidth').click()
+    current_tab.wait.load_start()
+
+    return current_tab.cookies()
+
+
 if __name__ == '__main__':
     # browser = Chromium(ChromiumOptions().headless())
     browser = Chromium()
-    tab: MixTab | str = browser.latest_tab
-    tab.get(
-        'https://account.xiaomi.com/fe/service/login/password?sid=miui_vip&qs=%253Fcallback%253Dhttps%25253A%25252F%25252Fapi.vip.miui.com%25252Fsts%25253Fsign%25253DebkFH%2525252BMQmjxjfKc2NjnX3gE8r20%2525253D%252526followup%25253Dhttps%2525253A%2525252F%2525252Fapi.vip.miui.com%2525252Fpage%2525252Flogin%2525253FdestUrl%2525253Dhttps%252525253A%252525252F%252525252Fweb.vip.miui.com%252525252Fpage%252525252Finfo%252525252Fmio%252525252Fmio%252525252FboardLive%252525253Fapp_version%252525253Ddev.20051%25252526time%2525253D1743342077662%2526sid%253Dmiui_vip&callback=https%3A%2F%2Fapi.vip.miui.com%2Fsts%3Fsign%3DebkFH%252BMQmjxjfKc2NjnX3gE8r20%253D%26followup%3Dhttps%253A%252F%252Fapi.vip.miui.com%252Fpage%252Flogin%253FdestUrl%253Dhttps%25253A%25252F%25252Fweb.vip.miui.com%25252Fpage%25252Finfo%25252Fmio%25252Fmio%25252FboardLive%25253Fapp_version%25253Ddev.20051%2526time%253D1743342077662&_sign=nvp5AxUt9LpCUk3g58NC07exdZU%3D&serviceParam=%7B%22checkSafePhone%22%3Afalse%2C%22checkSafeAddress%22%3Afalse%2C%22lsrp_score%22%3A0.0%7D&showActiveX=false&theme=&needTheme=false&bizDeviceType=&_locale=zh_CN')
+    tab: MixTab = browser.latest_tab
 
-    human_like_input(tab, '@@name=account@@class=mi-input__input', os.getenv('ACCOUNT'))
-    human_like_input(tab, '@@name=password@@class=mi-input__input', os.getenv('PASSWORD'))
+    cookies = login(tab)
 
-    tab.wait(random.uniform(0.1, 1))
-
-    # 同意协议
-    tab.ele('@@type=checkbox@@class=ant-checkbox-input').click()
-    # 点击登录
-    tab.ele('@@type=submit@@class=mi-button mi-button--primary mi-button--fullwidth').click()
-
-    tab.wait.load_start()
-
-    tab.wait(5)
-    # tab.close()
-
-    for cookie in tab.cookies():
+    for cookie in cookies:
         pprint(cookie)
 
     # # 关闭浏览器
