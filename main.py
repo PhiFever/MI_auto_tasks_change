@@ -84,6 +84,13 @@ if __name__ == '__main__':
             tab.set.cookies(cookie)
         tab.get('https://web.vip.miui.com/page/info/mio/mio/boardLive')
 
-    tab.wait(5)
+    tab.wait.load_start()
+    print('登录成功')
+
+    # 随便点一个贴子，浏览15秒
+    tab.actions.move_to(ele_or_loc=(1100, 725), duration=0.5).click()
+    tab.wait(15)
+
+    # 签到
     # 关闭浏览器
     browser.quit()
